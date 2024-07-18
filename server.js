@@ -1,10 +1,12 @@
 /*********************************************************************************
-* WEB700 – Assignment 03
+* WEB700 – Assignment 04
 * I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
 * of this assignment has been copied manually or electronically from any other source
 * (including 3rd party web sites) or distributed to other students.
 *
-* Name:Praveen Shanmugalingam  Student ID 156224230  Date: 14:06:24 
+* Name: Praveen Shanmugalingam Student ID: 156224230 Date: 2024-07-17
+*
+* Online (Heroku) Link: ________________________________________________________
 *
 ********************************************************************************/
 
@@ -17,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 var collegeData = require('./modules/collegeData');
 
-app.use(express.static('public'));
+app.use(express.static(path.join(path.resolve(), 'public')));
 
 // Serve home page
 app.get("/", function(req, res) {
