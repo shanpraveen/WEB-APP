@@ -44,6 +44,8 @@ app.engine('.hbs', exphbs.engine({
 
 app.set('view engine', '.hbs');
 
+app.set('views', path.join(__dirname, 'views'));
+
 // Middleware to set the active route
 app.use(function(req,res,next){
     let route = req.path.substring(1);
@@ -147,6 +149,7 @@ app.post('/student/update', (req, res) => {
         addressProvince: req.body.addressProvince,
         TA: req.body.TA === 'on',
         status: req.body.status,
+        course: course
     };
     collegeData.updateStudent(updatedStudent)
         .then(() => {
