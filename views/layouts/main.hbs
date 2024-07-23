@@ -16,40 +16,22 @@
 			
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto">
-					<li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
-					<li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-					<li class="nav-item"><a class="nav-link" href="/htmlDemo">Destinations</a></li>
+					{{#navLink "/"}}Home{{/navLink}}
+					{{#navLink "/about"}}About{{/navLink}}
+					{{#navLink "/htmlDemo"}}Destinations{{/navLink}}
+					
 				</ul>
 				<ul class="navbar-nav ml-auto">
 					<li class="nav-item"><a class="nav-link" href="/students/add">Add Students</a></li>
 					<li class="nav-item"><a class="nav-link" href="/students">Students</a></li>
-					<li class="nav-item"><a class="nav-link" href="/tas">Teaching Assistants</a></li>
+					{{!-- <li class="nav-item"><a class="nav-link" href="/tas">Teaching Assistants</a></li> --}}
 					<li class="nav-item"><a class="nav-link" href="/courses">Courses</a></li>
 				</ul>
 			</div>
 		</nav>
 
 		<div class="container">
-			<div class="row">
-				<main class="col-md-12">
-					<h1>Welcome to My Travel Blog!</h1>
-					<p>Join me as I explore breathtaking destinations, share travel tips, and delve into the vibrant cultures around the world. From serene landscapes to bustling cities, let's embark on an unforgettable journey together.</p>
-				
-					<h2>Exploring Sri Lanka</h2>
-					<p>Discover the hidden gems of Sri Lanka, from the misty highlands of Horton Plains to the pristine beaches of the southern coast. This tropical paradise offers a diverse array of experiences for every traveler.</p>
-				
-					<h3>Useful Links</h3>
-					<ul>
-						<li><a href="/">Home</a> - Return to the homepage.</li>
-						<li><a href="/about">About</a> - Learn more about the author and their travel adventures.</li>
-						<li><a href="/destinations">Destinations</a> - Explore different travel destinations featured on the blog.</li>
-						<li><a href="/travelTips">Travel Tips</a> - Get practical advice for your next trip.</li>
-						<li><a href="/gallery">Gallery</a> - View stunning photos from various travels.</li>
-						<li><a href="/contact">Contact</a> - Get in touch or send your travel queries.</li>
-					</ul>
-				</main>
-				
-			</div>
+			{{{body}}}
 		</div>
 
 		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
