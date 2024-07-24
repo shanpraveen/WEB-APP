@@ -6,7 +6,7 @@
 *
 * Name: Praveen Shanmugalingam Student ID: 156224230 Date: 2024-07-17
 *
-* Online (Heroku) Link: ________________________________________________________
+* Online (Vercel) Link: https://web700-app-ten.vercel.app/
 *
 ********************************************************************************/
 
@@ -70,7 +70,7 @@ app.get("/htmlDemo", function(req, res) {
 
 // Serve add student page
 app.get('/students/add', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'addStudent.html'));
+    res.render("addStudent")
 });
 
 // Add student
@@ -102,11 +102,6 @@ app.get("/students", function(req, res) {
                 res.render("students", {message: "no results"});
             });
     }
-});
-
-// Serve add student page
-app.get('/students/add', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'addStudent.html'));
 });
 
 // Add student
@@ -156,7 +151,8 @@ app.post('/student/update', (req, res) => {
             res.redirect('/students');
         })
         .catch(err => {
-            res.status(500).send("Unable to update student: " + err);
+            res.redirect('/students');
+            // res.status(500).send("Unable to update student: " + err);
         });
 });
 
