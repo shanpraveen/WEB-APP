@@ -109,9 +109,7 @@ const getCourseById = (id) => {
 function addStudent(studentData) {
     return new Promise((resolve, reject) => {
         // Ensure the TA property is set correctly
-        console.log("Student Data:", studentData)
         studentData.TA = studentData.TA ? true : false;
-
         // Iterate over the studentData object and set empty strings to null
         for (let property in studentData) {
             if (studentData[property] === "") {

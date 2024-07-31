@@ -78,16 +78,6 @@ app.get('/students/add', (req, res) => {
     res.render("addStudent")
 });
 
-// // Add student
-// app.post('/students/add', (req, res) => {
-//     console.log('request body',req.body);
-//     collegeData.addStudent(req.body).then(() => {
-//         res.redirect('/students');
-//     }).catch(err => {
-//         res.redirect('/students');
-//     });
-// });
-
 // Get students
 app.get("/students", function(req, res) {
     if (req.query.course) {
@@ -130,7 +120,6 @@ app.post('/students/add', (req, res) => {
         status: req.body.status,
         // course: parseInt(req.body.course, 10) || null
     };
-    console.log("Here student data:", studentData)
     // Send to collegeData for processing
     collegeData.addStudent(studentData).then(() => {
         res.redirect('/students');
