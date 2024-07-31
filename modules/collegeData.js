@@ -1,140 +1,144 @@
-const fs = require('fs');
-const path = require('path');  
+const Sequelize = require('sequelize');
 
+// Set up sequelize to point to your Postgres database
+var sequelize = new Sequelize('neondb', 'neondb_owner', '7yFC5IQrntwz', {
+    host: 'ep-restless-sun-a5o28jz4.us-east-2.aws.neon.tech',
+    dialect: 'postgres',
+    port: 5432,
+    dialectOptions: {
+        ssl: { rejectUnauthorized: false }
+    }, 
+    query: { raw: true }
+});
 
-const studentLink = path.join(__dirname,'..', 'data', 'students.json');
-const courseLink = path.join(__dirname,'..', 'data', 'courses.json');
+// Define Student model
+var Student = sequelize.define('Student', {
+    studentNum: {
+        type: Sequelize.INTEGER,
+        primaryKey: true, 
+        autoIncrement: true 
+    },
+    firstName: Sequelize.STRING,
+    lastName: Sequelize.STRING,
+    email: Sequelize.STRING,
+    addressStreet: Sequelize.STRING,
+    addressCity: Sequelize.STRING,
+    addressProvince: Sequelize.STRING,
+    TA: Sequelize.BOOLEAN,
+    status: Sequelize.STRING
+});
 
-class Data {                    
-    constructor(students, courses) {
-        this.students = students;
-        this.courses = courses;
-    }
-}
+// Define Course model
+var Course = sequelize.define('Course', {
+    courseId: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    courseCode: Sequelize.STRING,
+    courseDescription: Sequelize.STRING
+});
 
-let dataCollection = null;
+// Define the relationship between Student and Course
+Course.hasMany(Student, { foreignKey: 'course' });
 
+// Initialize the database
 const initialize = () => {
-    return new Promise((resolve, reject) => { 
-        fs.readFile(studentLink, 'utf8', (err, studentData) => {        
-            if (err) {                                                            
-                reject("Unable to read students.json");                         
-                return;                                                    
-            }
-            let students = JSON.parse(studentData);
-
-            fs.readFile(courseLink, 'utf8', (err, courseData) => {    
-                if (err) {
-                    reject("Unable to read courses.json");
-                    return;
-                }
-                let courses = JSON.parse(courseData);
-                dataCollection = new Data(students, courses);
-                resolve();
-            });
-        });
+    return new Promise((resolve, reject) => {
+        sequelize.sync()
+            .then(() => resolve())
+            .catch((err) => reject("Unable to sync the database:", err));
     });
 };
 
+// Get all students
 const getAllStudents = () => {
     return new Promise((resolve, reject) => {
-        if (dataCollection.students.length === 0) {
-            reject("No results.");
-        } else {
-            resolve(dataCollection.students);
-        }
+        Student.findAll()
+            .then(data => resolve(data))
+            .catch(err => reject("No results returned"));
     });
 };
 
+// Get students by course
+const getStudentsByCourse = (course) => {
+    return new Promise((resolve, reject) => {
+        Student.findAll({ where: { course: course } })
+            .then(data => resolve(data))
+            .catch(err => reject("No results returned"));
+    });
+};
+
+// Get student by student number
+const getStudentsByNum = (num) => {
+    return new Promise((resolve, reject) => {
+        Student.findOne({ where: { studentNum: num } })
+            .then(data => resolve(data))
+            .catch(err => reject("No results returned"));
+    });
+};
+
+// // Get TAs
 // const getTAs = () => {
 //     return new Promise((resolve, reject) => {
-//         const TAs = dataCollection.students.filter(student => student.TA === true);
-//         if (TAs.length === 0) {
-//             reject("No results.");
-//         } else {
-//             resolve(TAs);
-//         }
+//         Student.findAll({ where: { TA: true } })
+//             .then(data => resolve(data))
+//             .catch(err => reject("No results returned"));
 //     });
 // };
 
+// Get all courses
 const getCourses = () => {
     return new Promise((resolve, reject) => {
-        if (dataCollection.courses.length === 0) {
-            reject("no results returned");
-        } else {
-            resolve(dataCollection.courses);
-        }
+        Course.findAll()
+            .then(data => resolve(data))
+            .catch(err => reject("No results returned"));
     });
 };
 
+// Get course by ID
 const getCourseById = (id) => {
     return new Promise((resolve, reject) => {
-        const selectedCourse = dataCollection.courses.filter(course => course.courseId === parseInt(id));
-        if (selectedCourse.length > 0) {
-            resolve(selectedCourse);
-        } else {
-            reject('query returned 0 results');
-        }
+        Course.findAll({ where: { id: id } })
+            .then(data => resolve(data))
+            .catch(err => reject("No results returned"));
     });
 };
 
-const getStudentsByCourse = (course) => {
-    const selectedStudents = dataCollection.students.filter( student => student.course === parseInt(course));
-    return new Promise((resolve, reject) => {
-        if (selectedStudents.length > 0) {
-            resolve(selectedStudents);
-        } else {
-            reject('No results returned');
-        }
-    })
-}
-
-const getStudentsByNum = (num) => {
-    const selectedStudents = dataCollection.students.filter( student => student.studentNum === parseInt(num));
-    return new Promise((resolve, reject) => {
-        if (selectedStudents.length > 0) {
-            resolve(selectedStudents);
-        } else {
-            reject('No results returned');
-        }
-    })
-}
-
+// Add a new student
 function addStudent(studentData) {
     return new Promise((resolve, reject) => {
-        studentData.TA = studentData.TA !== undefined;
-        studentData.studentNum = dataCollection.students.length + 1;
-        dataCollection.students.push(studentData);
-        
-        fs.writeFile(studentLink, JSON.stringify(dataCollection.students, null, 2), (err) => {
-            if (err) {
-                console.log('Error',err);
-                reject(err);
-            } else {
-                resolve();
+        // Ensure the TA property is set correctly
+        console.log("Student Data:", studentData)
+        studentData.TA = studentData.TA ? true : false;
+
+        // Iterate over the studentData object and set empty strings to null
+        for (let property in studentData) {
+            if (studentData[property] === "") {
+                studentData[property] = null;
             }
-        });
+        }
+
+        // Create a new student in the database
+        Student.create(studentData)
+            .then(() => {
+                resolve();
+            })
+            .catch(err => {
+                reject("unable to create student: " + err);
+            });
     });
 }
 
-function updateStudent(studentData) {
+// Update a student
+const updateStudent = (studentData) => {
+    studentData.TA = studentData.TA ? true : false;
     return new Promise((resolve, reject) => {
-        const index = dataCollection.students.findIndex(student => student.studentNum === parseInt(studentData.studentNum));
-        if (index === -1) {
-            reject('Student not found');
-        } else {
-            studentData.TA = studentData.TA !== undefined;
-            dataCollection.students[index] = studentData;
-            fs.writeFile(studentLink, JSON.stringify(dataCollection.students, null, 2), (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        }
+        Student.update(studentData, { where: { studentNum: studentData.studentNum } })
+            .then(() => resolve())
+            .catch(err => reject("Unable to update student"));
     });
-}
+};
 
 module.exports = {
     initialize,

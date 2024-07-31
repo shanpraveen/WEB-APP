@@ -22,6 +22,11 @@ var collegeData = require('./modules/collegeData');
 
 app.use(express.static(path.join(path.resolve(), 'public')));
 
+app.use(function (err, req, res, next) {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
 app.engine('.hbs', exphbs.engine({ 
     extname: '.hbs',
     helpers: {
@@ -73,30 +78,38 @@ app.get('/students/add', (req, res) => {
     res.render("addStudent")
 });
 
-// Add student
-app.post('/students/add', (req, res) => {
-    console.log('request body',req.body);
-    collegeData.addStudent(req.body).then(() => {
-        res.redirect('/students');
-    }).catch(err => {
-        res.redirect('/students');
-    });
-});
+// // Add student
+// app.post('/students/add', (req, res) => {
+//     console.log('request body',req.body);
+//     collegeData.addStudent(req.body).then(() => {
+//         res.redirect('/students');
+//     }).catch(err => {
+//         res.redirect('/students');
+//     });
+// });
 
 // Get students
 app.get("/students", function(req, res) {
     if (req.query.course) {
         collegeData.getStudentsByCourse(req.query.course)
-            .then(function(students) {
-                res.json(students);
+            .then(function(data) {
+                if (data.length > 0) {
+                    res.render("students", {students: data}); 
+                } else {
+                    res.render("students", {message: "no results"});
+                }
             })
             .catch(function(err) {
-                res.json({ message: err });
+                res.render("students", {message: "no results"});
             });
     } else {
         collegeData.getAllStudents()
             .then(function(data) {
-                res.render("students", {students: data}); 
+                if (data.length > 0) {
+                    res.render("students", {students: data});
+                } else {
+                    res.render("students", {message: "no results"});
+                }
             })
             .catch(function(err) {
                 res.render("students", {message: "no results"});
@@ -104,12 +117,25 @@ app.get("/students", function(req, res) {
     }
 });
 
-// Add student
 app.post('/students/add', (req, res) => {
-    console.log('request body',req.body);
-    collegeData.addStudent(req.body).then(() => {
+    // Prepare the student data
+    let studentData = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        addressStreet: req.body.addressStreet,
+        addressCity: req.body.addressCity,
+        addressProvince: req.body.addressProvince,
+        TA: req.body.TA === 'on',
+        status: req.body.status,
+        // course: parseInt(req.body.course, 10) || null
+    };
+    console.log("Here student data:", studentData)
+    // Send to collegeData for processing
+    collegeData.addStudent(studentData).then(() => {
         res.redirect('/students');
     }).catch(err => {
+        console.error(err);
         res.redirect('/students');
     });
 });
