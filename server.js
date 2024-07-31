@@ -133,7 +133,8 @@ app.get('/student/:num', (req, res) => {
     collegeData.getStudentsByNum(req.params.num)
         .then(data => {
             // res.json(data))
-            res.render("student", {student: data[0]});
+            console.log("data", data)
+            res.render("student", {student: data});
         })
         .catch(err => {
             // res.json({ message: err })
@@ -159,7 +160,7 @@ app.post('/student/update', (req, res) => {
         addressProvince: req.body.addressProvince,
         TA: req.body.TA === 'on',
         status: req.body.status,
-        course: course
+        // course: course
     };
     collegeData.updateStudent(updatedStudent)
         .then(() => {
@@ -171,16 +172,44 @@ app.post('/student/update', (req, res) => {
         });
 });
 
-// Get TAs
-// app.get("/tas", function(req, res) {
-//     collegeData.getTAs()
-//         .then(function(tas) {
-//             res.json(tas);
-//         })
-//         .catch(function(err) {
-//             res.json({ message: "No results" });
-//         });
-// });
+app.get('/courses/add', (req, res) => {
+    res.render("addCourse")
+});
+
+//Add course route
+app.post('/courses/add', (req, res) => {
+    // Send to collegeData for processing
+    collegeData.addCourse(req.body).then(() => {
+        res.redirect('/courses');
+    }).catch(err => {
+        console.error(err);
+        res.redirect('/courses');
+    });
+});
+
+//Update course route
+app.post('/course/update', (req, res) => {
+    let courseId = parseInt(req.body.courseId, 10);
+
+    if (isNaN(courseId)) {
+        return res.status(400).send('Invalid input: courseId must be numbers');
+    }
+
+    const updatedCourse = {
+        courseId: courseId,
+        courseCode: req.body.courseCode,
+        courseDescription: req.body.courseDescription
+    };
+
+    collegeData.updateCourse(Course)
+        .then(() => {
+            res.redirect('/courses');
+        })
+        .catch(err => {
+            res.redirect('/courses');
+            // res.status(500).send("Unable to update student: " + err);
+        });
+});
 
 // Get courses
 app.get("/courses", function(req, res) {
@@ -193,15 +222,37 @@ app.get("/courses", function(req, res) {
         });
 });
 
+// Route to get course details
 app.get('/course/:id', (req, res) => {
     collegeData.getCourseById(req.params.id)
         .then(data => {
-            res.render("course", {course: data[0]});
+            if (data === undefined) {
+                // Data not found, send 404 response
+                // res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+                res.status(404).send("Course Not Found");
+            } else {
+                res.render("course", { course: data[0] });
+            }
         })
         .catch(err => {
-            res.render("course",{ message: "no results" });
+            // Handle unexpected errors
+            res.status(500).send("An error occurred while retrieving the course");
         });
 });
+
+// Route to delete a course
+app.get('/course/delete/:id', (req, res) => {
+    collegeData.deleteCourse(req.params.id)
+        .then(() => {
+            // Deletion successful, redirect to /courses
+            res.redirect('/courses');
+        })
+        .catch(err => {
+            // Handle errors during deletion
+            res.status(500).send("Unable to Remove Course / Course not found");
+        });
+});
+
 
 // Catch-all for 404 errors
 app.use(function(req, res, next) {

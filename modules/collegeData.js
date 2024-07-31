@@ -99,7 +99,7 @@ const getCourses = () => {
 // Get course by ID
 const getCourseById = (id) => {
     return new Promise((resolve, reject) => {
-        Course.findAll({ where: { id: id } })
+        Course.findAll({ where: { courseId: id } })
             .then(data => resolve(data))
             .catch(err => reject("No results returned"));
     });
@@ -128,13 +128,64 @@ function addStudent(studentData) {
     });
 }
 
+// Add a new course
+function addCourse(courseData) {
+    return new Promise((resolve, reject) => {
+        // Iterate over the courseData object and set empty strings to null
+        for (let property in courseData) {
+            if (courseData[property] === "") {
+                courseData[property] = null;
+            }
+        }
+
+        // Create a new student in the database
+        Course.create(courseData)
+            .then(() => {
+                resolve();
+            })
+            .catch(err => {
+                reject("unable to create course: " + err);
+            });
+    });
+}
+
+
 // Update a student
 const updateStudent = (studentData) => {
     studentData.TA = studentData.TA ? true : false;
+
+    for (let property in studentData) {
+        if (studentData[property] === "") {
+            studentData[property] = null;
+        }
+    }
+
     return new Promise((resolve, reject) => {
         Student.update(studentData, { where: { studentNum: studentData.studentNum } })
             .then(() => resolve())
             .catch(err => reject("Unable to update student"));
+    });
+};
+
+const updateCourse = (courseData) => {
+    for (let property in courseData) {
+        if (courseData[property] === "") {
+            courseData[property] = null;
+        }
+    }
+    
+    return new Promise((resolve, reject) => {
+        Course.update(courseData, { where: { courseId: courseData.courseId } })
+            .then(() => resolve())
+            .catch(err => reject("Unable to update course"));
+    });
+};
+
+const deleteCourse = (id) => {
+    return new Promise((resolve, reject) => {
+        Course.destroy({ where: { courseId: id }})
+            .then(() => resolve())
+            .catch(err => reject("Unable to delete course"));
     });
 };
 
@@ -147,5 +198,8 @@ module.exports = {
     getStudentsByCourse,
     getStudentsByNum,
     addStudent,
-    updateStudent
+    updateStudent,
+    addCourse,
+    updateCourse,
+    deleteCourse
 };
