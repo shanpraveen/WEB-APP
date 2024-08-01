@@ -4,7 +4,9 @@
         {{#if course}}
             <h2>{{course.courseDescription}}</h2>
             <hr />
-            <form>
+            <form method="post" action="/course/update">
+                <input type="hidden" name="courseId" value="{{course.courseId}}" />
+
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
@@ -20,6 +22,8 @@
                     </div>
                 </div>
                 <hr />
+                <hr />
+                <input type="submit" class="btn btn-primary float-right" value="Update Course" /><br /><br /><br />
             </form>
         {{else}}
             <div class="col-md-12 text-center">
