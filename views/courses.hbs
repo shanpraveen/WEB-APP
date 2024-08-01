@@ -19,7 +19,8 @@
                     {{#each courses}}
                     <tr>
                         <td><a href="/course/{{this.courseId}}">{{this.courseCode}}</a></td>
-                        <td><a href="/course?course={{this.courseId}}">{{this.courseDescription}}</a></td>
+                        <td><a href="/course/{{this.courseId}}">{{this.courseDescription}}</a></td>
+                        <td><a href="/course/delete/{{this.courseId}}"><button class="btn btn-danger"> Remove </button></a></td>
                     </tr>
                     {{/each}}
                     {{else}}

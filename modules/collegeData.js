@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 
-// Set up sequelize to point to your Postgres database
-var sequelize = new Sequelize('neondb', 'neondb_owner', '7yFC5IQrntwz', {
-    host: 'ep-restless-sun-a5o28jz4.us-east-2.aws.neon.tech',
+var sequelize = new Sequelize('neondb', 'neondb_owner', 'VdhoqRMt2GW6', {
+    dialectModule: require('pg'),
+    host: 'ep-lively-sky-a5w6dzz0.us-east-2.aws.neon.tech',
     dialect: 'postgres',
     port: 5432,
     dialectOptions: {
@@ -39,7 +39,7 @@ var Course = sequelize.define('Course', {
     courseDescription: Sequelize.STRING
 });
 
-// Define the relationship between Student and Course
+//Relationship between Student and Course
 Course.hasMany(Student, { foreignKey: 'course' });
 
 // Initialize the database
@@ -77,15 +77,6 @@ const getStudentsByNum = (num) => {
             .catch(err => reject("No results returned"));
     });
 };
-
-// // Get TAs
-// const getTAs = () => {
-//     return new Promise((resolve, reject) => {
-//         Student.findAll({ where: { TA: true } })
-//             .then(data => resolve(data))
-//             .catch(err => reject("No results returned"));
-//     });
-// };
 
 // Get all courses
 const getCourses = () => {
@@ -128,6 +119,32 @@ function addStudent(studentData) {
     });
 }
 
+// Update a student
+const updateStudent = (studentData) => {
+    studentData.TA = studentData.TA ? true : false;
+
+    for (let property in studentData) {
+        if (studentData[property] === "") {
+            studentData[property] = null;
+        }
+    }
+
+    return new Promise((resolve, reject) => {
+        Student.update(studentData, { where: { studentNum: studentData.studentNum } })
+            .then(() => resolve())
+            .catch(err => reject("Unable to update student"));
+    });
+};
+
+//Delete a student
+const deleteStudent = (id) => {
+    return new Promise((resolve, reject) => {
+        Student.destroy({ where: { studentNum: id }})
+            .then(() => resolve())
+            .catch(err => reject("Unable to delete Student"));
+    });
+};
+
 // Add a new course
 function addCourse(courseData) {
     return new Promise((resolve, reject) => {
@@ -149,24 +166,7 @@ function addCourse(courseData) {
     });
 }
 
-
-// Update a student
-const updateStudent = (studentData) => {
-    studentData.TA = studentData.TA ? true : false;
-
-    for (let property in studentData) {
-        if (studentData[property] === "") {
-            studentData[property] = null;
-        }
-    }
-
-    return new Promise((resolve, reject) => {
-        Student.update(studentData, { where: { studentNum: studentData.studentNum } })
-            .then(() => resolve())
-            .catch(err => reject("Unable to update student"));
-    });
-};
-
+// Update a course
 const updateCourse = (courseData) => {
     for (let property in courseData) {
         if (courseData[property] === "") {
@@ -181,6 +181,7 @@ const updateCourse = (courseData) => {
     });
 };
 
+// Delete a course
 const deleteCourse = (id) => {
     return new Promise((resolve, reject) => {
         Course.destroy({ where: { courseId: id }})
@@ -189,10 +190,10 @@ const deleteCourse = (id) => {
     });
 };
 
+// Export the functions
 module.exports = {
     initialize,
     getAllStudents,
-    // getTAs,
     getCourses,
     getCourseById,
     getStudentsByCourse,
@@ -201,5 +202,6 @@ module.exports = {
     updateStudent,
     addCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    deleteStudent
 };

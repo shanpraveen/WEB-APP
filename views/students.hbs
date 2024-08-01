@@ -28,18 +28,17 @@
                 <td>{{this.address}}</td>
                 <td>{{this.status}}</td>
                 <td><a href="/students?course={{this.course}}">{{this.course}}</a></td>
+                <td><a href="/student/delete/{{this.studentNum}}"><button class="btn btn-danger"> Remove </button></a></td>
+
               </tr>
             {{/each}}
           {{else}}
             <tr>
-              <td colspan="6" class="text-center"><strong>{{No students found}}</strong></td>
+              <td colspan="6" class="text-center"><strong>{{message}}</strong></td>
             </tr>
           {{/if}}
         </tbody>
       </table>
     </div>
-  </div>
-  <div class="col-md-12 text-center">
-    <strong>{{message}}</strong>
   </div>
 </div>
